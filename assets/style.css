@@ -1,0 +1,528 @@
+/* ARCHETYP: GABINET / PRAKTYKA — arkusz wyłącznie tego projektu.
+ *
+ * Wzorzec dla wszystkiego, gdzie kupuje się ZAUFANIE, a nie produkt:
+ * stomatolog, protetyk, fizjoterapeuta, optyk, psycholog, weterynarz.
+ * W bazie prospektów to 11 firm — po fryzjerach druga co do wielkości grupa.
+ *
+ * Reguły układu, wynikające z tego, jak ludzie wybierają gabinet:
+ *  — cennik widełkowy z jawnym „zależy od zakresu", nie jedna ładna liczba,
+ *  — nazwiska z numerem PWZ, bo pacjent sprawdza lekarza w rejestrze,
+ *  — FAQ na <details>, bo pytania „czy NFZ" i „boję się" są zadawane
+ *    przez telefon dziesiątki razy w tygodniu i można je z tego telefonu zdjąć,
+ *  — przebieg pierwszej wizyty rozpisany krok po kroku, bo strach bierze się
+ *    z nieznajomości procedury, a nie z bólu.
+ *
+ * Jasno, dużo światła, jeden spokojny kolor. Gabinet nie ma imponować.
+ */
+
+:root{
+  --morski:#0E3A46;
+  --morski-2:#155263;
+  --morski-mgla:#E8F1F3;
+  --morski-mgla2:#F4F9FA;
+  --atrament:#152025;
+  --szept:#5A6B72;
+  --linia:#DCE6E9;
+  --biel:#FFFFFF;
+  --bursztyn:#B4690E;
+  --tyt:'Newsreader',Georgia,'Times New Roman',serif;
+  --tekst:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --szer:1180px;
+  --tempo:.4s;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:80px}
+body{margin:0;background:var(--biel);color:var(--atrament);
+  font:400 16.5px/1.7 var(--tekst);-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{font-family:var(--tyt);font-weight:400;line-height:1.16;margin:0;letter-spacing:-.01em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.skip{position:absolute;left:-9999px;background:var(--morski);color:var(--biel);padding:10px 16px;z-index:300}
+.skip:focus{left:12px;top:12px}
+:focus-visible{outline:2px solid var(--morski);outline-offset:3px}
+.nadtytul{font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--morski-2);margin:0 0 12px}
+.wstep{font-size:1.02rem;color:var(--szept);max-width:62ch;margin:0}
+.drobne{font-size:.84rem;color:var(--szept);margin:16px 0 0;max-width:64ch}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:.84rem;font-weight:600;letter-spacing:.06em;text-decoration:none;cursor:pointer;
+  border:1px solid transparent;padding:15px 28px;border-radius:4px;
+  transition:background var(--tempo),color var(--tempo),border-color var(--tempo),transform var(--tempo)}
+.btn--glowny{background:var(--morski);color:var(--biel)}
+.btn--glowny:hover{background:var(--morski-2);transform:translateY(-2px)}
+.btn--obrys{background:transparent;color:var(--morski);border-color:var(--linia)}
+.btn--obrys:hover{background:var(--morski-mgla);border-color:var(--morski)}
+.btn--duzy{padding:17px 32px;font-size:.92rem}
+.btn--belka{padding:12px 20px}
+
+/* ------------------------------------------------------------- belka */
+.belka{position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:20px;min-width:0;
+  padding:12px clamp(14px,3vw,32px);background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--linia);transition:box-shadow var(--tempo)}
+.belka.przewiniety{box-shadow:0 3px 18px rgba(21,32,37,.07)}
+.marka{display:flex;align-items:center;gap:10px;text-decoration:none;margin-right:auto;min-width:0;
+  font-family:var(--tyt);font-size:1.26rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.marka-znak{flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+  background:var(--morski);position:relative}
+.marka-znak::before,.marka-znak::after{content:"";position:absolute;background:var(--biel)}
+.marka-znak::before{left:11px;top:6px;width:4px;height:14px;border-radius:2px}
+.marka-znak::after{left:6px;top:11px;width:14px;height:4px;border-radius:2px}
+.nawi{display:flex;gap:24px}
+.nawi a{font-size:.82rem;font-weight:500;text-decoration:none;color:var(--szept);
+  padding:6px 0;border-bottom:2px solid transparent;
+  transition:color var(--tempo),border-color var(--tempo)}
+.nawi a:hover{color:var(--atrament);border-bottom-color:var(--morski)}
+.jz{display:flex;gap:0;flex:0 0 auto}
+.jz .lang{font-size:.68rem;font-weight:700;padding:6px 7px;text-decoration:none;
+  color:var(--szept);transition:color var(--tempo)}
+.jz .lang:hover{color:var(--atrament)}
+.jz .lang.is-on{color:var(--morski)}
+.tel-link{font-size:.88rem;font-weight:700;text-decoration:none;white-space:nowrap;color:var(--morski)}
+.ham{display:none;background:0;border:0;padding:10px;cursor:pointer;flex-direction:column;gap:5px}
+.ham span{display:block;width:22px;height:2px;background:var(--atrament)}
+.mm{display:none}
+
+/* ---------------------------------------------------------- otwarcie */
+.otwarcie{max-width:var(--szer);margin:0 auto;display:grid;gap:clamp(28px,4vw,56px);
+  align-items:center;padding:clamp(40px,6vw,86px) clamp(20px,4vw,32px)}
+.otwarcie h1{font-size:clamp(2.2rem,5.2vw,3.8rem);max-width:14ch;margin-bottom:.34em}
+.guziki{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.uwagi{display:grid;gap:10px;margin-top:30px}
+.uwaga{margin:0;padding:14px 18px;border-radius:4px;background:var(--morski-mgla2);
+  border-left:3px solid var(--linia);font-size:.92rem;color:var(--szept);max-width:52ch}
+/* Ból zęba to jedyny powód, dla którego ktoś wchodzi na tę stronę w panice —
+   ta linijka musi się różnić od reszty na pierwszy rzut oka. */
+.uwaga--pilne{background:#FDF4E6;border-left-color:var(--bursztyn);color:#6E4208;font-weight:500}
+.otwarcie-foto{position:relative}
+.otwarcie-foto picture{display:block;overflow:hidden;border-radius:6px;background:var(--morski-mgla)}
+.otwarcie-foto img{width:100%;height:clamp(290px,40vw,470px);object-fit:cover;
+  border-radius:6px}
+
+/* --- trzy kartki: cena pierwszej wizyty, stan teraz, numer na ból --- */
+.kartki{display:grid;gap:10px;margin-top:14px}
+.kartka{display:flex;align-items:center;gap:12px;text-decoration:none;
+  background:var(--biel);border:1px solid var(--linia);border-radius:8px;
+  padding:12px 14px;min-height:44px;
+  box-shadow:0 10px 30px -20px rgba(21,32,37,.55)}
+.kartka-znak{flex:0 0 auto;display:grid;place-items:center;width:34px;height:34px;
+  border-radius:8px;background:var(--morski-mgla);color:var(--morski)}
+.kartka-znak svg{width:19px;height:19px}
+.kartka-tresc{display:grid;gap:1px;min-width:0}
+.kartka-tresc b{font-size:.92rem;color:var(--atrament);font-weight:600;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kartka-tresc span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.82rem;color:var(--szept)}
+a.kartka:hover{border-color:var(--morski)}
+/* Kartka z bolem jest jedyna, ktora dzwoni — dostaje mocniejszy znak. */
+.kartka--pilne .kartka-znak{background:var(--bursztyn);color:#fff}
+.kartka--pilne .kartka-tresc span{color:var(--atrament);font-weight:600}
+
+/* --- cennik jako karty --- */
+.cennik-karty{display:grid;gap:12px;margin-top:clamp(24px,3vw,36px)}
+.zabieg{background:var(--biel);border:1px solid var(--linia);border-radius:8px;
+  padding:20px 20px 16px;display:flex;flex-direction:column}
+.zabieg h3{margin:0 0 6px;font-family:var(--tyt);font-size:1.12rem;color:var(--atrament)}
+.zabieg-opis{margin:0 0 16px;font-size:.9rem;color:var(--szept);flex:1 1 auto}
+/* Cena i czas na wspolnej linii bazowej, oddzielone kreska od opisu —
+   pacjent skacze wzrokiem po prawej kolumnie i czyta same kwoty. */
+.zabieg-dol{margin:0;padding-top:12px;border-top:1px solid var(--linia);
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.zabieg-czas{font-size:.82rem;color:var(--szept)}
+.zabieg-cena{font-family:var(--tyt);font-size:1.25rem;font-weight:500;
+  color:var(--morski);white-space:nowrap}
+@media (min-width:640px){ .cennik-karty{grid-template-columns:repeat(2,1fr)} }
+@media (min-width:1000px){ .cennik-karty{grid-template-columns:repeat(3,1fr)} }
+
+/* --- pasek zaufania pod zgieciem --- */
+.zaufanie{background:var(--morski-mgla2);border-block:1px solid var(--linia);
+  display:grid;gap:0}
+.zaufanie-poz{display:flex;align-items:flex-start;gap:12px;
+  padding:16px clamp(20px,4vw,32px);border-top:1px solid var(--linia)}
+.zaufanie-poz:first-child{border-top:0}
+.zaufanie-znak{flex:0 0 auto;display:grid;place-items:center;width:22px;height:22px;
+  color:var(--morski);margin-top:1px}
+.zaufanie-znak svg{width:16px;height:16px}
+.zaufanie-tresc{display:grid;gap:2px}
+.zaufanie-tresc b{font-size:.9rem;font-weight:600;color:var(--atrament)}
+.zaufanie-tresc span{font-size:.82rem;color:var(--szept)}
+@media (min-width:760px){
+  .zaufanie{grid-template-columns:repeat(4,1fr);max-width:var(--szer);
+    margin-inline:auto;border-inline:1px solid var(--linia)}
+  .zaufanie-poz{border-top:0;border-left:1px solid var(--linia);padding-block:20px}
+  .zaufanie-poz:first-child{border-left:0}
+}
+
+/* ------------------------------------------------------------ sekcje */
+.zabiegi,.zespol,.przebieg,.faq,.wizyta,.opinie{max-width:var(--szer);margin:0 auto;
+  padding:clamp(50px,7vw,98px) clamp(20px,4vw,32px)}
+.zabiegi h2,.zespol h2,.przebieg h2,.faq h2,.wizyta h2,.opinie h2,.o-nas h2,.znajdz-dane h2{
+  font-size:clamp(1.7rem,3.6vw,2.6rem);margin-bottom:.4em}
+
+.tabela-otoczka{margin-top:clamp(26px,3vw,44px);overflow-x:auto;
+  border:1px solid var(--linia);border-radius:6px}
+.cennik{width:100%;border-collapse:collapse;min-width:640px}
+.cennik thead th{font-size:.66rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--szept);background:var(--morski-mgla2);text-align:left;padding:14px 18px;
+  border-bottom:1px solid var(--linia)}
+.cennik tbody th{font-family:var(--tyt);font-weight:500;font-size:1.06rem;text-align:left;
+  padding:17px 18px;border-bottom:1px solid var(--linia);vertical-align:top;white-space:nowrap}
+.cennik td{padding:17px 18px;border-bottom:1px solid var(--linia);font-size:.94rem;
+  color:var(--szept);vertical-align:top}
+.cennik tbody tr:last-child th,.cennik tbody tr:last-child td{border-bottom:0}
+.kol-czas{white-space:nowrap;font-variant-numeric:tabular-nums}
+.kol-cena{white-space:nowrap;text-align:right;font-family:var(--tyt);font-weight:500;
+  font-size:1.04rem;color:var(--morski)}
+
+/* ------------------------------------------------------------- zespół */
+.zespol{background:var(--morski-mgla2);max-width:none}
+.zespol > *{max-width:var(--szer);margin-inline:auto}
+.zespol-siatka{display:grid;gap:16px;margin-top:clamp(26px,3vw,44px)}
+.lekarz{background:var(--biel);border:1px solid var(--linia);border-radius:6px;padding:26px 24px}
+.lekarz-foto{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;
+  background:var(--morski-mgla);margin-bottom:18px}
+.lekarz-foto span{font-family:var(--tyt);font-size:1.3rem;color:var(--morski)}
+.lekarz h3{font-size:1.1rem;margin-bottom:5px}
+.lekarz-spec{margin:0;font-size:.84rem;font-weight:600;color:var(--morski-2)}
+.lekarz-opis{margin:12px 0 0;font-size:.92rem;color:var(--szept)}
+/* Numer PWZ jest publiczny i pacjent go sprawdza — dlatego stoi na stronie,
+   a nie w regulaminie. */
+.lekarz-pwz{display:inline-block;margin-top:16px;font-size:.72rem;font-weight:600;
+  letter-spacing:.1em;color:var(--szept);background:var(--morski-mgla);
+  padding:5px 10px;border-radius:3px;font-variant-numeric:tabular-nums}
+
+/* ----------------------------------------------------------- przebieg */
+.kroki{list-style:none;display:grid;gap:16px;margin:clamp(26px,3vw,44px) 0 0;padding:0}
+.krok{background:var(--biel);border:1px solid var(--linia);border-radius:6px;padding:26px 22px}
+.krok-nr{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;
+  background:var(--morski);color:var(--biel);font-family:var(--tyt);font-size:1rem;margin-bottom:16px}
+.krok h3{font-size:1.06rem;margin-bottom:6px}
+.krok p{margin:0;font-size:.92rem;color:var(--szept)}
+
+/* --------------------------------------------------------------- FAQ */
+.faq{display:grid;gap:clamp(24px,3vw,48px);align-items:start}
+.faq-lista{display:grid;gap:0;border-top:1px solid var(--linia)}
+.pytanie{border-bottom:1px solid var(--linia)}
+.pytanie summary{list-style:none;cursor:pointer;padding:19px 34px 19px 0;position:relative;
+  font-family:var(--tyt);font-size:1.08rem;transition:color var(--tempo)}
+.pytanie summary::-webkit-details-marker{display:none}
+.pytanie summary:hover{color:var(--morski)}
+.pytanie summary::after{content:"";position:absolute;right:6px;top:50%;width:10px;height:10px;
+  border-right:2px solid var(--morski);border-bottom:2px solid var(--morski);
+  transform:translateY(-70%) rotate(45deg);transition:transform var(--tempo)}
+.pytanie[open] summary::after{transform:translateY(-30%) rotate(225deg)}
+.pytanie p{margin:0 0 20px;font-size:.95rem;color:var(--szept);max-width:66ch}
+
+/* ------------------------------------------------------------ wizyta */
+.wizyta{background:var(--morski);color:var(--biel);max-width:none}
+.wizyta > *{max-width:var(--szer);margin-inline:auto}
+.wizyta .nadtytul{color:rgba(255,255,255,.72)}
+.wizyta .wstep{color:rgba(255,255,255,.86)}
+.wizyta .drobne{color:rgba(255,255,255,.72)}
+.wizyta-form{display:grid;gap:16px;margin-top:clamp(24px,3vw,40px)}
+.pole-grupa{display:grid;gap:7px;margin:0;min-width:0}
+.pole-grupa label{font-size:.68rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.8)}
+.pole{width:100%;background:var(--biel);color:var(--atrament);border:1px solid transparent;
+  padding:13px 14px;font:400 .96rem/1.45 var(--tekst);border-radius:4px;
+  transition:box-shadow var(--tempo)}
+.pole:hover,.pole:focus{box-shadow:0 0 0 3px rgba(255,255,255,.28)}
+select.pole{appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--morski) 50%),linear-gradient(135deg,var(--morski) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 50%,calc(100% - 12px) 50%;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;padding-right:36px}
+.wizyta .btn--glowny{background:var(--biel);color:var(--morski)}
+.wizyta .btn--glowny:hover{background:var(--morski-mgla)}
+.wizyta-stopka{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.wizyta-komunikat{margin:0;font-size:.92rem;min-height:1.2em}
+.wizyta-komunikat.ok{color:#9BE8B6}
+.wizyta-komunikat.zle{color:#FFB4AC}
+
+/* -------------------------------------------------------------- o nas */
+.o-nas{max-width:var(--szer);margin:0 auto;display:grid;gap:clamp(26px,4vw,52px);
+  align-items:center;padding:clamp(50px,7vw,98px) clamp(20px,4vw,32px)}
+.o-nas-foto{overflow:hidden;border-radius:6px;background:var(--morski-mgla)}
+.o-nas-foto img{width:100%;height:clamp(270px,32vw,400px);object-fit:cover}
+.o-nas p{color:var(--szept);margin:0 0 1.1em;max-width:56ch}
+.atuty{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:9px}
+.atuty li{position:relative;padding-left:26px;font-size:.94rem}
+.atuty li::before{content:"";position:absolute;left:0;top:.42em;width:14px;height:8px;
+  border-left:2px solid var(--morski);border-bottom:2px solid var(--morski);
+  transform:rotate(-45deg)}
+
+.galeria{display:grid;gap:6px;grid-template-columns:1fr}
+.galeria figure{margin:0;position:relative;overflow:hidden;background:var(--morski-mgla)}
+.galeria img{width:100%;height:clamp(220px,26vw,300px);object-fit:cover;
+  transition:transform .8s cubic-bezier(.2,.7,.3,1)}
+.galeria figure:hover img{transform:scale(1.04)}
+.galeria figcaption{position:absolute;left:0;bottom:0;background:var(--biel);color:var(--morski);
+  font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:7px 13px}
+
+/* ------------------------------------------------------------- opinie */
+.opinie-lista{list-style:none;margin:clamp(26px,3vw,42px) 0 0;padding:0;
+  display:grid;gap:clamp(20px,3vw,30px)}
+.opinia{padding-left:clamp(18px,3vw,26px);border-left:2px solid var(--morski-mgla)}
+.opinia-tekst{margin:0 0 8px;font-family:var(--tyt);font-size:1.05rem;line-height:1.55;
+  color:var(--atrament)}
+.opinia-kto{margin:0;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--szept)}
+@media (min-width:820px){
+  .opinie-lista{grid-template-columns:repeat(3,1fr);gap:28px}
+}
+
+/* ------------------------------------------------------------- znajdź */
+.znajdz{display:grid;gap:0;border-top:1px solid var(--linia)}
+.mapa{min-height:340px;background:var(--morski-mgla)}
+.mapa iframe{width:100%;height:100%;min-height:340px;border:0;display:block}
+.znajdz-dane{padding:clamp(30px,4vw,54px) clamp(20px,4vw,32px);background:var(--morski-mgla2)}
+/* <address> jest domyślnie kursywą — gabinet podaje adres, nie cytuje go. */
+.adres{margin:0 0 16px;line-height:1.8;font-style:normal}
+.tel-duzy{display:inline-block;font-family:var(--tyt);font-size:clamp(1.6rem,3.6vw,2.3rem);
+  text-decoration:none;color:var(--morski)}
+.tel-duzy:hover{color:var(--morski-2)}
+.godziny-tabela{width:100%;border-collapse:collapse;margin-top:20px;max-width:400px}
+.godziny-tabela th,.godziny-tabela td{padding:9px 0;border-bottom:1px solid var(--linia);
+  text-align:left;font-weight:400;font-size:.9rem}
+.godziny-tabela td{text-align:right;color:var(--szept);font-variant-numeric:tabular-nums}
+.znajdz-dane .btn{margin-top:20px}
+
+.stopa{background:var(--morski);color:rgba(255,255,255,.82);text-align:center;
+  padding:38px 20px}
+.stopa-marka{margin:0 0 6px;font-family:var(--tyt);font-size:1.4rem;color:var(--biel)}
+.stopa-adres{margin:0;font-size:.88rem;color:rgba(255,255,255,.78)}
+.stopa-tel{display:inline-flex;align-items:center;min-height:44px;margin-top:10px;
+  padding:0 22px;border:1px solid rgba(255,255,255,.5);border-radius:999px;
+  font-weight:700;color:var(--biel);text-decoration:none}
+.stopa-tel:hover{background:var(--biel);color:var(--morski)}
+
+@media (min-width:720px){
+  .zespol-siatka{grid-template-columns:repeat(3,1fr)}
+  .kroki{grid-template-columns:repeat(2,1fr)}
+  .galeria{grid-template-columns:repeat(2,1fr)}
+  .wizyta-form{grid-template-columns:1fr 1fr;column-gap:20px}
+  .pole-grupa--szeroka,.wizyta-stopka,.wizyta-form .drobne{grid-column:1/-1}
+  .uwagi{grid-template-columns:1fr}
+}
+@media (min-width:1000px){
+  .otwarcie{grid-template-columns:1.05fr .95fr}
+  /* Od tej szerokosci kartki wychodza na zdjecie: pierwsza z lewej krawedzi,
+     ostatnia z prawej, srodkowa posrodku — tak jak lezalyby na biurku. */
+  .kartki{position:absolute;inset:0;margin:0;display:block;pointer-events:none}
+  .kartki > *{position:absolute;width:min(74%,290px);pointer-events:auto}
+  .kartki > *:nth-child(1){top:8%;left:-8%}
+  .kartki > *:nth-child(2){top:42%;right:-6%}
+  .kartki > *:nth-child(3){bottom:8%;left:2%}
+  .kroki{grid-template-columns:repeat(4,1fr)}
+  .faq{grid-template-columns:.8fr 1.2fr}
+  .o-nas{grid-template-columns:.9fr 1.1fr}
+  .o-nas-foto{order:-1}
+  /* Atuty pasem pod obiema kolumnami, nie w ogonie tekstu. */
+  .o-nas .atuty{grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr);
+    gap:0 26px}
+  .znajdz{grid-template-columns:1fr 1fr}
+}
+@media (max-width:1023px){
+  .nawi{display:none}
+  .ham{display:flex}
+  .tel-link{font-size:.8rem}
+  .btn--belka{display:none}
+  .mm{display:none;position:fixed;inset:62px 0 auto;z-index:95;background:var(--biel);
+    border-bottom:1px solid var(--linia);padding:6px 20px 18px;flex-direction:column}
+  .mm.otwarte{display:flex}
+  .mm a{text-decoration:none;font-weight:500;font-size:.92rem;padding:14px 0;
+    border-bottom:1px solid var(--linia)}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+.img--hero{object-position:50% 50%}
+.img--about{object-position:50% 50%}
+.img--gabinet-1{object-position:50% 50%}
+.img--gabinet-2{object-position:50% 50%}
+
+/* ======================================= DWIE KOLUMNY: PRZYJĘCIA I TELEFON
+ * W gabinecie to są dwie różne rzeczy. Pacjent dzwoniący o 8:30 chce wiedzieć,
+ * czy ktoś odbierze — a nie o której zaczyna się przyjmowanie. Jedna wspólna
+ * tabela nigdy mu tego nie powie, więc stoją obok siebie.
+ */
+.dwie-godziny{background:var(--morski-mgla2);border-top:1px solid var(--linia);
+  padding:clamp(34px,5vw,58px) clamp(20px,4vw,32px)}
+.dg-srodek{max-width:var(--szer);margin:0 auto;display:grid;gap:clamp(20px,3vw,40px)}
+.tabela-otoczka{overflow-x:auto;background:var(--biel);border:1px solid var(--linia);
+  border-radius:6px}
+.dg-tabela{width:100%;border-collapse:collapse;font-size:.92rem}
+/* th przegrywa na specyficzności z regułami globalnymi — stąd pełny selektor. */
+.dg-tabela thead th{text-align:left;padding:14px 16px;font-size:.75rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--morski);
+  border-bottom:1px solid var(--linia);white-space:nowrap}
+.dg-tabela tbody th{text-align:left;padding:12px 16px;font-weight:500;color:var(--atrament)}
+.dg-tabela td{padding:12px 16px;color:var(--szept);font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.dg-tabela tbody tr + tr th,.dg-tabela tbody tr + tr td{border-top:1px solid var(--linia)}
+/* Kolumna rejestracji jest tą, po którą pacjent tu przyszedł — dostaje tło. */
+.dg-tabela tr > *:last-child{background:var(--morski-mgla2)}
+.dg-tabela tr[data-zamkniete] th,.dg-tabela tr[data-zamkniete] td{color:var(--szept)}
+.dg-tabela tr.dzis th,.dg-tabela tr.dzis td{font-weight:600;color:var(--morski)}
+/* Na telefonie to nagłówki ("Rejestracja telefoniczna") wymuszały szerokość
+   kolumn i trzecia uciekała za krawędź. Niech się łamią — dane i tak są
+   krótkie, a tabela mieści się wtedy w 360px bez przewijania w bok. */
+@media (max-width:620px){
+  .dg-tabela{font-size:.8rem}
+  .dg-tabela thead th{white-space:normal;padding:12px 8px;letter-spacing:.08em}
+  .dg-tabela tbody th,.dg-tabela td{padding:11px 8px}
+}
+/* Kolumna rejestracji jest tą, po którą pacjent tu przyszedł — dostaje
+   morski obrys, żeby oko trafiło na nią pierwsze. */
+.dg-nota{margin:16px 0 0;font-size:.82rem;color:var(--szept)}
+
+@media (min-width:760px){
+}
+
+/* ==================================== TELEFON: dotyk i czytelność
+ * Zmierzone skryptem scripts/mobile.mjs na 360 i 390 px, w trzech językach.
+ *
+ * Przełącznik języka miał 26×29 px. To jest pierwszy element, w który celuje
+ * ukraiński klient po wejściu na stronę, a opuszek palca ma około 45 px —
+ * czyli trafiał obok. Podpisy i etykiety siedziały na 10.9–11.5 px.
+ *
+ * Rozmiary idą z !important, bo bez tego przegrywają na specyficzności
+ * z regułami dekoracyjnymi (.jezyk .lang, .galeria figcaption). To są progi
+ * dostępności, nie ozdoba — muszą wygrać. Poza wąskim ekranem nic się nie zmienia.
+ */
+@media (max-width: 900px){
+  .lang{
+    min-width:44px !important;min-height:44px !important;padding:0 6px !important;
+    display:inline-flex !important;align-items:center;justify-content:center;
+    font-size:12px !important;
+  }
+  .ham{min-width:44px !important;min-height:44px !important;
+    align-items:center;justify-content:center}
+  .marka,.logo,.znak,.szyld-marka,.tytul-marki,.nazwa{
+    min-height:44px !important;display:flex !important;align-items:center}
+
+  /* Wersaliki z dużym rozstrzeleniem poniżej 12 px są na telefonie
+     nieczytelne, niezależnie od tego, jak dobrze wyglądają na monitorze. */
+  .nadtytul,.nadpis,.etyk,.etykieta,.etykietka,.plakietka,.tag,.mini,
+  .metryczka,.sygnatura,.kd-dzien,.chip-dzien,.dzis-etyk,.dzis-etykieta,
+  .sala-etyk,.para-etyk,.blok-tytul,.zaufanie-etyk,.numer,.numerek,
+  .fakt-etyk,.bilecik-nad,.pas-telefon-etyk,.kreda-czas,
+  figcaption,.kolo-czas,.chip-czas,.pigulka-czas,.kd-czas,.dzwon,
+  .kafel-czas,.zaufanie-pod,.fakt-pod,.os-czas,.wiersz-czas,
+  .lekarz-pwz,.opinia-zrodlo,.reszta-tygodnia,.sala-dni,.sala-czas{
+    font-size:12px !important;
+  }
+
+  /* Długie numery i nazwy ulic nie mogą rozpychać strony w bok. */
+  .tel-link,.tel-duzy,.numer-duzy,.wielki-nr,.duzy-tel,.duzy-numer,
+  .telefon,.numer-xl,.bilecik-numer,.tel,.adr-wielki,.ulica{
+    overflow-wrap:anywhere;
+  }
+}
+
+
+/* ============================ TELEFON: reszta celów i etykiet
+ * Trzecia tura po pomiarze scripts/mobile.mjs. Patrz komentarz w tmp/mobile-3.mjs.
+ */
+@media (max-width: 900px){
+  /* Etykiety i nagłówki tabel: max() nigdy nie zmniejsza, tylko podnosi
+     te, które siedziały poniżej progu. */
+  th,td,dt,label,legend,small,
+  .kol-czas,.kol-cena,.kol-zakres,.poz-nr,.poz-cena,.metka,.cennik,
+  .usluga-cena,.grupa-razy,.skladka li,.dostawa-cena{
+    font-size:max(12px,.8rem);
+  }
+
+  /* Cele dotykowe: telefon w pasku, przyciski, kafelki godzin w kreatorze,
+     rozwijane pytania. Wszystko, co się naciska palcem. */
+  a[href^="tel:"]:not(.kartka),.btn,.guzik,.klaw,.klawisz,.pig,.pigula,.ramka,.obwodka,
+  .linia,.nr,.tel-link,.tel-btn,.tel-pigula,.dzwon,.telefon-gora,.link-strzalka,
+  .godzina,.dzien,.zakladka,summary{
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  }
+  /* Rozwijane pytania i zakładki są blokowe — wyrównanie do lewej,
+     inaczej tekst wskoczyłby na środek. */
+  summary,.zakladka{justify-content:flex-start}
+
+  /* iOS przybliża stronę przy dotknięciu pola mniejszego niż 16 px.
+     To zachowanie Safari, nie preferencja — jedyne wyjście to 16 px. */
+  input,select,textarea{font-size:16px;min-height:44px}
+  textarea{min-height:80px}
+}
+
+
+/* ================== TELEFON: ostatnie drobiazgi
+ * Dokładne miejsca z tmp/male-teksty.mjs: ceny w cennikach, podpisy przycisków,
+ * numer w pasku i dopisek w logotypie. Wszystko poniżej 12 px na 390 px.
+ * Gola s ma pod znakiem napis EST. KIELCE ustawiony na 9 px — na monitorze
+ * to elegancki detal, w ręce nieczytelna plamka. */
+@media (max-width:900px){
+  .wielka-pigula span,.telefon-gora,.cena-bukietu,.lista-cena,
+  .znak-n,.znak-r,.tydzien summary,.ramka,.bilecik-guziki .ramka,
+  .marka-pod,.hero-adres,.grupa-razy,.cennik,.metka{font-size:12px !important}
+}
+
+
+/* ================== TELEFON: budżet paska nagłówka
+ * Patrz komentarz w tmp/mobile-4.mjs — to jest naprawa regresji, którą sam
+ * wprowadziłem, podnosząc cele dotykowe bez sprawdzenia szerokości paska.
+ */
+@media (max-width: 900px){
+  .belka,.nav,.naglowek-strony,.szyld,.pas-gorny,.listwa,.top-bar,.gora{
+    flex-wrap:nowrap;
+  }
+  /* Marka może się skrócić wielokropkiem; reszta paska nie może zniknąć. */
+  .marka,.logo,.znak,.szyld-marka,.tytul-marki,.nazwa,.marka-nazwa{
+    min-width:44px;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;
+  /* Nazwa firmy jest w pasku najwazniejsza — to po nia klient patrzy pierwszy.
+     Wczesniej przelacznik jezyka (3 x 44px) spychal ja do 44px i "Dentika"
+     pokazywala sie jako "De". Guziki jezyka zwezone; WYSOKOSC 44px zostaje,
+     bo to ona decyduje o trafianiu palcem, a 32px szerokosci i tak jest
+     powyzej progu 24px z WCAG 2.5.8. */
+  .jz .lang,.jezyk .lang,.jezyki .lang,.jez .lang{min-width:32px;padding-inline:4px}
+  }
+  .jz,.jezyk,.jezyki{flex:0 0 auto}
+
+  /* Nagłówki tabel: th przegrywa na specyficzności z .cennik thead th. */
+  th,td,.cennik th,.cennik td,.plan th,.plan td,
+  .godziny-tabela th,.godziny-tabela td{font-size:max(12px,.8rem) !important}
+}
+
+/* Poniżej 560 px przycisk CTA z paska ustępuje miejsca telefonowi i menu.
+   Ta sama akcja jest w menu pod hamburgerem i w treści strony, więc nic
+   nie ginie — a pasek przestaje wypychać stronę w bok. */
+@media (max-width: 560px){
+  .btn--belka,.btn--zloty.btn--belka,.btn--czerwony.btn--belka,
+  .btn--glowny.btn--belka,.btn--pelny-kolor.btn--belka{display:none !important}
+}
+
+
+/* ============ TELEFON: ostatnie etykiety i pasek dni
+ * .krok-etyk i podobne to klasy na <label>, wiec wygrywaja z regula na samym
+ * elemencie. Pasek dni w kreatorze rezerwacji ma sie PRZEWIJAC w bok,
+ * a nie rozpychac strone — min-width:0 przywraca przycinanie. */
+@media (max-width:900px){
+  label,legend,.krok-etyk,.znacznik,.wyroznik,.pole-grupa label,
+  .zapis-form label,.wizyta-form label,.zam-form label,.rez-pole label{
+    font-size:max(12px,.78rem) !important;
+  }
+  .dni,#dni,.godziny,#godziny{min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .kreator,.kreator .krok{min-width:0}
+}
+
+
+@media (max-width:900px){
+  .skip{min-height:44px;display:inline-flex;align-items:center}
+}
+
+/* switcher w menu mobilnym */
+@media (max-width:560px){
+  header .jz{display:none}
+  .jz--mob{display:flex;gap:2px;padding:10px 0 2px}
+  .jz--mob .lang{min-width:44px;min-height:44px;display:inline-flex;
+    align-items:center;justify-content:center}
+}
+@media (min-width:561px){ .jz--mob{display:none} }
